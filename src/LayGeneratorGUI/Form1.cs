@@ -94,33 +94,18 @@ public partial class Form1 : Form
             }
         });
 
-        FormExtensions.UpdateElementsListView(MameInputs.Elements, ref ElementsListview);
+        FormExtensions.UpdateListView(MameInputs.Elements, ref ElementsListview);
     }
 
     private void AddViewButton_Click(object sender, EventArgs e)
     {
         //Ensure the elements are not empty:
-        if (!FormExtensions.EnsureInputContainsValue(ViewNameTextbox.Text, "View name"))
-        {
-            return;
-        }
-        else if (!FormExtensions.EnsureInputContainsNumber(ViewScreenIndexTextbox.Text, "Screen bounds Index"))
-        {
-            return;
-        }
-        else if (!FormExtensions.EnsureInputContainsNumber(ViewScreenXTextbox.Text, "Screen bounds 'X'"))
-        {
-            return;
-        }
-        else if (!FormExtensions.EnsureInputContainsNumber(ViewScreenYTextbox.Text, "Screen bounds 'Y'"))
-        {
-            return;
-        }
-        else if (!FormExtensions.EnsureInputContainsNumber(ViewScreenWidthTextbox.Text, "Screen bounds 'Width'"))
-        {
-            return;
-        }
-        else if (!FormExtensions.EnsureInputContainsNumber(ViewScreenHeightTextbox.Text, "Screen bounds 'Height'"))
+        if (!FormExtensions.EnsureInputContainsValue(ViewNameTextbox.Text, "View name") ||
+            !FormExtensions.EnsureInputContainsNumber(ViewScreenIndexTextbox.Text, "Screen bounds Index") ||
+            !FormExtensions.EnsureInputContainsNumber(ViewScreenXTextbox.Text, "Screen bounds 'X'") ||
+            !FormExtensions.EnsureInputContainsNumber(ViewScreenYTextbox.Text, "Screen bounds 'Y'") ||
+            !FormExtensions.EnsureInputContainsNumber(ViewScreenWidthTextbox.Text, "Screen bounds 'Width'") ||
+            !FormExtensions.EnsureInputContainsNumber(ViewScreenHeightTextbox.Text, "Screen bounds 'Height'"))
         {
             return;
         }
@@ -140,11 +125,69 @@ public partial class Form1 : Form
                 }
             }
         });
+
+        FormExtensions.UpdateListView(MameInputs.Views, ref ViewsListview);
     }
 
     private void AddBezelButton_Click(object sender, EventArgs e)
     {
-        //if (!FormExtensions.EnsureInputContainsValue(BezelViewSearchTextbox.Text, ))
+        // Check the specified view number/name exists:
+        // Check view name:
+        int viewIndex = MameInputs.Views.FindIndex(view => view.Name == BezelViewSearchTextbox.Text);
+
+        // BUG: THE VIEW NAMES ARE NOT MATCHING...
+
+        // Check view number:
+        if (viewIndex == -1 && int.TryParse(BezelViewSearchTextbox.Text, out viewIndex))
+        {
+            viewIndex++;
+
+            // Check the view index is in range:
+            if (viewIndex < 1 || viewIndex > MameInputs.Views.Count)
+            {
+                FormExtensions.DisplayErrorMessage("Error: The specified view number was invalid.");
+                return;
+            }
+        }
+        else
+        {
+            FormExtensions.DisplayErrorMessage("Error: The specified view name/number was invalid.");
+            return;
+        }
+
+        if (!FormExtensions.EnsureInputContainsValue(BezelViewNameTextbox.Text, "Bezel name") ||
+            !FormExtensions.EnsureInputContainsNumber(ViewBezelXTextbox.Text, "Bezel Bound X") ||
+            !FormExtensions.EnsureInputContainsNumber(ViewBezelYTextbox.Text, "Bezel Bound Y") ||
+            !FormExtensions.EnsureInputContainsNumber(ViewBezelWidthTextbox.Text, "Bezel Bound Width") ||
+            !FormExtensions.EnsureInputContainsNumber(ViewBezelHeightTextbox.Text, "Bezel Bound Height"))
+        {
+            return;
+        }
+
+        // Check the element that the bezel references exists:
+        string? elementName = MameInputs.Elements.FirstOrDefault(element => element.Name == BezelViewNameLabel.Text)?.Name;
+
+        if (elementName is null)
+        {
+            FormExtensions.DisplayErrorMessage("Error: The specified bezel name (referring to the Element name) does not exist.");
+            return;
+        }
+
+        MameInputs.Views[viewIndex].Bezels.Add(new Bezel
+        {
+            Element = elementName,
+            Bounds = new Bounds
+            {
+                X = ViewBezelXTextbox.Text,
+                Y = ViewBezelYTextbox.Text,
+                Width = ViewBezelWidthTextbox.Text,
+                Height = ViewBezelHeightTextbox.Text
+            }
+        });
+
+        // Get a list of all Bezels and update list view:
+        List<Bezel> bezels = MameInputs.Views.SelectMany(view => view.Bezels).ToList();
+        FormExtensions.UpdateListView(bezels, ref ElementsListview);
     }
 
     private void GenerateLayFileButton_Click(object sender, EventArgs e)
