@@ -64,23 +64,41 @@ internal static class FormExtensions
             ListViewItem? item = null;
             if (typeof(T) == typeof(Element))
             {
-                Element? element = list[count] as Element;
-                item = new ListViewItem(new[] { (count + 1).ToString(), element?.Name, element?.Image.File });
+                Element element = (list[count] as Element)!;
+                item = new ListViewItem(new[]
+                {
+                    (count + 1).ToString(),
+                    element.Name,
+                    element.Image.File
+                });
             }
             else if (typeof(T) == typeof(View))
             {
-                View? view = list[count] as View;
+                View view = (list[count] as View)!;
                 item = new ListViewItem(new[]
                 {
-                    (count + 1).ToString(), view?.Name, view?.Comment, view?.Screen.Index, view?.Screen.Bounds.X,
-                    view?.Screen.Bounds.Y, view?.Screen.Bounds.Width, view?.Screen.Bounds.Height
+                    (count + 1).ToString(),
+                    view.Name,
+                    view.Comment,
+                    view.Screen.Index,
+                    view.Screen.Bounds.X,
+                    view.Screen.Bounds.Y,
+                    view.Screen.Bounds.Width,
+                    view.Screen.Bounds.Height
                 });
             }
             else if (typeof(T) == typeof(Bezel))
             {
-                Bezel? bezel = list[count] as Bezel;
-                //todo: properties for bezels still need adding
-                listView.Items.Add(new ListViewItem(new[] { (count + 1).ToString() }));
+                Bezel bezel = (list[count] as Bezel)!;
+                item = new ListViewItem(new []
+                {
+                    (count + 1).ToString(),
+                    bezel.Element,
+                    bezel.Bounds.X,
+                    bezel.Bounds.Y,
+                    bezel.Bounds.Width,
+                    bezel.Bounds.Height
+                });
             }
 
             if (item is null)

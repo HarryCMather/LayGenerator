@@ -1,7 +1,5 @@
 using LayGeneratorGUI.Extensions;
 using LayGeneratorGUI.Models;
-using System.Drawing;
-using Accessibility;
 using Image = LayGeneratorGUI.Models.Image;
 using Screen = LayGeneratorGUI.Models.Screen;
 using View = LayGeneratorGUI.Models.View;
@@ -135,21 +133,19 @@ public partial class Form1 : Form
         // Check view name:
         int viewIndex = MameInputs.Views.FindIndex(view => view.Name == BezelViewSearchTextbox.Text);
 
-        // BUG: THE VIEW NAMES ARE NOT MATCHING...
-
         // Check view number:
         if (viewIndex == -1 && int.TryParse(BezelViewSearchTextbox.Text, out viewIndex))
         {
-            viewIndex++;
+            viewIndex--;
 
             // Check the view index is in range:
-            if (viewIndex < 1 || viewIndex > MameInputs.Views.Count)
+            if (viewIndex < 0 || viewIndex >= MameInputs.Views.Count)
             {
                 FormExtensions.DisplayErrorMessage("Error: The specified view number was invalid.");
                 return;
             }
         }
-        else
+        else if (viewIndex == -1)
         {
             FormExtensions.DisplayErrorMessage("Error: The specified view name/number was invalid.");
             return;
@@ -165,7 +161,7 @@ public partial class Form1 : Form
         }
 
         // Check the element that the bezel references exists:
-        string? elementName = MameInputs.Elements.FirstOrDefault(element => element.Name == BezelViewNameLabel.Text)?.Name;
+        string? elementName = MameInputs.Elements.FirstOrDefault(element => element.Name == BezelViewNameTextbox.Text)?.Name;
 
         if (elementName is null)
         {
@@ -186,8 +182,9 @@ public partial class Form1 : Form
         });
 
         // Get a list of all Bezels and update list view:
+        // TODO: NEED TO FIND A WAY TO ADD THE VIEW NAME INTO THIS...
         List<Bezel> bezels = MameInputs.Views.SelectMany(view => view.Bezels).ToList();
-        FormExtensions.UpdateListView(bezels, ref ElementsListview);
+        FormExtensions.UpdateListView(bezels, ref BezelsListview);
     }
 
     private void GenerateLayFileButton_Click(object sender, EventArgs e)
@@ -214,7 +211,7 @@ public partial class Form1 : Form
             return;
         }
 
-
+        // TODO: FINISH THIS...
     }
 
     //Fix for Windows Forms applications randomly not closing when performing IO/thread-locked tasks:

@@ -9,6 +9,6 @@ public class View
 
     [XmlElement("screen")]
     public Screen Screen { get; set; }
-    
-    public List<Bezel> Bezels { get; set; } //this needs to be <bezels> as this is already being removed in XmlExtensions
+
+    public List<Bezel> Bezels { get; set; } = new(); //this needs to be <bezels> as this is already being removed in XmlExtensions
 }
