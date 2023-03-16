@@ -7,16 +7,21 @@ using View = LayGeneratorGUI.Models.View;
 
 namespace LayGeneratorGUI;
 
-public partial class Form1 : Form
+public sealed partial class Form1 : Form
 {
     private readonly MameLayout _mameInputs = new();
 
-    public Form1()
+    public Form1(string version)
     {
         InitializeComponent();
         ColourListViewHeader(ref ElementsListview, Color.FromArgb(40, 40, 40), Color.White);
         ColourListViewHeader(ref ViewsListview, Color.FromArgb(40, 40, 40), Color.White);
         ColourListViewHeader(ref BezelsListview, Color.FromArgb(40, 40, 40), Color.White);
+
+        if (!string.IsNullOrEmpty(version))
+        {
+            Text += $@" V{version}";
+        }
     }
 
     public static void ColourListViewHeader(ref ListView list, Color backColor, Color foreColor)
