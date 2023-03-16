@@ -1,5 +1,6 @@
 using LayGeneratorGUI.Extensions;
 using LayGeneratorGUI.Models;
+using LayGeneratorGUI.Serialization;
 using Image = LayGeneratorGUI.Models.Image;
 using Screen = LayGeneratorGUI.Models.Screen;
 using View = LayGeneratorGUI.Models.View;
@@ -8,7 +9,7 @@ namespace LayGeneratorGUI;
 
 public partial class Form1 : Form
 {
-    private MameLayout MameInputs = new();
+    private readonly MameLayout _mameInputs = new();
 
     public Form1()
     {
@@ -83,7 +84,7 @@ public partial class Form1 : Form
             return;
         }
 
-        MameInputs.Elements.Add(new Element
+        _mameInputs.Elements.Add(new Element
         {
             Name = ElementNameTextbox.Text,
             Image = new Image
@@ -92,7 +93,7 @@ public partial class Form1 : Form
             }
         });
 
-        FormExtensions.UpdateListView(MameInputs.Elements, ref ElementsListview);
+        FormExtensions.UpdateListView(_mameInputs.Elements, ref ElementsListview);
     }
 
     private void AddViewButton_Click(object sender, EventArgs e)
@@ -108,7 +109,7 @@ public partial class Form1 : Form
             return;
         }
 
-        MameInputs.Views.Add(new View
+        _mameInputs.Views.Add(new View
         {
             Name = ViewNameTextbox.Text,
             Screen = new Screen
@@ -121,17 +122,18 @@ public partial class Form1 : Form
                     Width = ViewScreenWidthTextbox.Text,
                     Height = ViewScreenHeightTextbox.Text
                 }
-            }
+            },
+            Comment = ViewCommentTextbox.Text
         });
 
-        FormExtensions.UpdateListView(MameInputs.Views, ref ViewsListview);
+        FormExtensions.UpdateListView(_mameInputs.Views, ref ViewsListview);
     }
 
     private void AddBezelButton_Click(object sender, EventArgs e)
     {
         // Check the specified view number/name exists:
         // Check view name:
-        int viewIndex = MameInputs.Views.FindIndex(view => view.Name == BezelViewSearchTextbox.Text);
+        int viewIndex = _mameInputs.Views.FindIndex(view => view.Name == BezelViewSearchTextbox.Text);
 
         // Check view number:
         if (viewIndex == -1 && int.TryParse(BezelViewSearchTextbox.Text, out viewIndex))
@@ -139,7 +141,7 @@ public partial class Form1 : Form
             viewIndex--;
 
             // Check the view index is in range:
-            if (viewIndex < 0 || viewIndex >= MameInputs.Views.Count)
+            if (viewIndex < 0 || viewIndex >= _mameInputs.Views.Count)
             {
                 FormExtensions.DisplayErrorMessage("Error: The specified view number was invalid.");
                 return;
@@ -161,7 +163,7 @@ public partial class Form1 : Form
         }
 
         // Check the element that the bezel references exists:
-        string? elementName = MameInputs.Elements.FirstOrDefault(element => element.Name == BezelViewNameTextbox.Text)?.Name;
+        string? elementName = _mameInputs.Elements.FirstOrDefault(element => element.Name == BezelViewNameTextbox.Text)?.Name;
 
         if (elementName is null)
         {
@@ -169,7 +171,7 @@ public partial class Form1 : Form
             return;
         }
 
-        MameInputs.Views[viewIndex].Bezels.Add(new Bezel
+        _mameInputs.Views[viewIndex].Bezels.Add(new Bezel
         {
             Element = elementName,
             Bounds = new Bounds
@@ -181,10 +183,8 @@ public partial class Form1 : Form
             }
         });
 
-        // Get a list of all Bezels and update list view:
-        // TODO: NEED TO FIND A WAY TO ADD THE VIEW NAME INTO THIS...
-        List<Bezel> bezels = MameInputs.Views.SelectMany(view => view.Bezels).ToList();
-        FormExtensions.UpdateListView(bezels, ref BezelsListview);
+        // Get a list of all Views (contains ViewName) and update list view:
+        FormExtensions.UpdateBezelsListView(_mameInputs.Views, ref BezelsListview);
     }
 
     private void GenerateLayFileButton_Click(object sender, EventArgs e)
@@ -199,19 +199,47 @@ public partial class Form1 : Form
             return;
         }
 
+        _mameInputs.Version = MameVersionTextbox.Text;
+        _mameInputs.Comment = GameTextbox.Text;
+
+        if (!_mameInputs.Comment.EndsWith(".lay"))
+        {
+            _mameInputs.Comment += ".lay";
+        }
+
         //Ensure 'MameInputs' values contain at least 1 view (each must contain 1 screen and at least 1 bezel) and 1 element:
-        if (!MameInputs.Elements.Any())
+        if (!_mameInputs.Elements.Any())
         {
             FormExtensions.DisplayErrorMessage("Error: No elements were specified.");
             return;
         }
-        else if (!MameExtensions.EnsureAllViewsContainOneScreenAndBezels(MameInputs))
+        else if (!MameExtensions.EnsureAllViewsContainOneScreenAndBezels(_mameInputs))
         {
             //no error message display, as this is handled in the above function
             return;
         }
 
-        // TODO: FINISH THIS...
+        // TODO: Potentially add more checks here...
+        LaySerializer laySerializer = new();
+        string xml = laySerializer.Serialize(_mameInputs);
+
+        SaveFileDialog saveFileDialog = new();
+        saveFileDialog.Filter = "Lay file|*.lay";
+        saveFileDialog.Title = "Save lay file";
+        saveFileDialog.ShowDialog();
+
+        if (string.IsNullOrEmpty(saveFileDialog.FileName))
+        {
+            FormExtensions.DisplayErrorMessage("Error: File name cannot be empty.");
+            return;
+        }
+
+        if (!saveFileDialog.FileName.EndsWith(".lay", StringComparison.OrdinalIgnoreCase))
+        {
+            saveFileDialog.FileName += ".lay";
+        }
+
+        File.WriteAllText(saveFileDialog.FileName, xml);
     }
 
     //Fix for Windows Forms applications randomly not closing when performing IO/thread-locked tasks:
@@ -233,7 +261,7 @@ public partial class Form1 : Form
         }
 
         ElementMoveUpButton.Enabled = ElementsListview.SelectedItems[0].Text != "1";
-        ElementMoveDownButton.Enabled = ElementsListview.SelectedItems[0].Text != MameInputs.Elements.Count.ToString();
+        ElementMoveDownButton.Enabled = ElementsListview.SelectedItems[0].Text != _mameInputs.Elements.Count.ToString();
     }
 
     private void ElementsListview_ItemChecked(object sender, ItemCheckedEventArgs e) { }
@@ -248,7 +276,7 @@ public partial class Form1 : Form
         }
 
         ViewMoveUpButton.Enabled = ViewsListview.SelectedItems[0].Text != "1";
-        ViewMoveDownButton.Enabled = ViewsListview.SelectedItems[0].Text != MameInputs.Elements.Count.ToString();
+        ViewMoveDownButton.Enabled = ViewsListview.SelectedItems[0].Text != _mameInputs.Elements.Count.ToString();
     }
 
     private void BezelsListview_ItemChecked(object sender, ItemCheckedEventArgs e) { }
@@ -265,7 +293,7 @@ public partial class Form1 : Form
             return;
         }
 
-        MameInputs.Elements = FormExtensions.ReorderListAndListView(MameInputs.Elements, ref ElementsListview, selectedItem - 1, selectedItem - 2, true);
+        _mameInputs.Elements = FormExtensions.ReorderListAndListView(_mameInputs.Elements, ref ElementsListview, selectedItem - 1, selectedItem - 2, true);
     }
 
     private void ElementMoveDownButton_Click(object sender, EventArgs e)
@@ -275,7 +303,7 @@ public partial class Form1 : Form
             return;
         }
 
-        MameInputs.Elements = FormExtensions.ReorderListAndListView(MameInputs.Elements, ref ElementsListview, selectedItem - 1, selectedItem + 1, false);
+        _mameInputs.Elements = FormExtensions.ReorderListAndListView(_mameInputs.Elements, ref ElementsListview, selectedItem - 1, selectedItem + 1, false);
     }
 
     private void ElementDeleteButton_Click(object sender, EventArgs e)
@@ -285,7 +313,7 @@ public partial class Form1 : Form
             return;
         }
 
-        MameInputs.Elements = FormExtensions.RemoveItemFromListAndListView(MameInputs.Elements, ref ElementsListview, selectedItem - 1);
+        _mameInputs.Elements = FormExtensions.RemoveItemFromListAndListView(_mameInputs.Elements, ref ElementsListview, selectedItem - 1);
     }
 
     private void ViewMoveUpButton_Click(object sender, EventArgs e)
@@ -295,7 +323,7 @@ public partial class Form1 : Form
             return;
         }
 
-        MameInputs.Views = FormExtensions.ReorderListAndListView(MameInputs.Views, ref ViewsListview, selectedItem - 1, selectedItem - 2, true);
+        _mameInputs.Views = FormExtensions.ReorderListAndListView(_mameInputs.Views, ref ViewsListview, selectedItem - 1, selectedItem - 2, true);
     }
 
     private void ViewMoveDownButton_Click(object sender, EventArgs e)
@@ -305,7 +333,7 @@ public partial class Form1 : Form
             return;
         }
 
-        MameInputs.Views = FormExtensions.ReorderListAndListView(MameInputs.Views, ref ViewsListview, selectedItem - 1, selectedItem + 1, false);
+        _mameInputs.Views = FormExtensions.ReorderListAndListView(_mameInputs.Views, ref ViewsListview, selectedItem - 1, selectedItem + 1, false);
     }
 
     private void ViewDeleteButton_Click(object sender, EventArgs e)
@@ -315,7 +343,7 @@ public partial class Form1 : Form
             return;
         }
 
-        MameInputs.Views = FormExtensions.RemoveItemFromListAndListView(MameInputs.Views, ref ViewsListview, selectedItem - 1);
+        _mameInputs.Views = FormExtensions.RemoveItemFromListAndListView(_mameInputs.Views, ref ViewsListview, selectedItem - 1);
     }
 
     private void BezelDeleteButton_Click(object sender, EventArgs e)
@@ -328,6 +356,6 @@ public partial class Form1 : Form
         //todo: Additional step: Get the View containing the list of bezels and pass in the list of bezels, before overwriting the original value
         //todo: Check if there is any point adding back move up/down for bezels?
 
-        MameInputs.Views = FormExtensions.RemoveItemFromListAndListView(MameInputs.Views, ref BezelsListview, selectedItem - 1);
+        _mameInputs.Views = FormExtensions.RemoveItemFromListAndListView(_mameInputs.Views, ref BezelsListview, selectedItem - 1);
     }
 }

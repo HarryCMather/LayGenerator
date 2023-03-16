@@ -50,66 +50,94 @@ internal static class FormExtensions
         MessageBox.Show(error);
     }
 
-    public static void UpdateListView<T>(List<T> list, ref ListView listView)
+    public static void UpdateElementsListView(List<Element> elements, ref ListView elementsListView)
     {
-        if (!list.Any())
+        if (!elements.Any())
         {
             return;
         }
 
-        listView.Items.Clear();
+        elementsListView.Items.Clear();
 
-        for (int count = 0; count < list.Count; count++)
+        for (int count = 0; count < elements.Count; count++)
         {
-            ListViewItem? item = null;
-            if (typeof(T) == typeof(Element))
+            ListViewItem item = new(new []
             {
-                Element element = (list[count] as Element)!;
-                item = new ListViewItem(new[]
-                {
-                    (count + 1).ToString(),
-                    element.Name,
-                    element.Image.File
-                });
-            }
-            else if (typeof(T) == typeof(View))
+                (count + 1).ToString(),
+                elements[count].Name,
+                elements[count].Image.File
+            });
+
+            elementsListView.Items.Add(item);
+        }
+
+        ColourListViewItems(ref elementsListView);
+    }
+
+    public static void UpdateViewsListView(List<View> views, ref ListView viewsListView)
+    {
+        if (!views.Any())
+        {
+            return;
+        }
+
+        viewsListView.Items.Clear();
+
+        int number = 1;
+        foreach (View view in views)
+        {
+            ListViewItem item = new(new[]
             {
-                View view = (list[count] as View)!;
-                item = new ListViewItem(new[]
-                {
-                    (count + 1).ToString(),
-                    view.Name,
-                    view.Comment,
-                    view.Screen.Index,
-                    view.Screen.Bounds.X,
-                    view.Screen.Bounds.Y,
-                    view.Screen.Bounds.Width,
-                    view.Screen.Bounds.Height
-                });
-            }
-            else if (typeof(T) == typeof(Bezel))
+                number.ToString(),
+                view.Name,
+                view.Comment,
+                view.Screen.Index,
+                view.Screen.Bounds.X,
+                view.Screen.Bounds.Y,
+                view.Screen.Bounds.Width,
+                view.Screen.Bounds.Height
+            });
+
+            viewsListView.Items.Add(item);
+
+            number++;
+        }
+
+        ColourListViewItems(ref viewsListView);
+    }
+
+    public static void UpdateBezelsListView(List<View> views, ref ListView bezelsListView)
+    {
+        if (!views.Any())
+        {
+            return;
+        }
+
+        bezelsListView.Items.Clear();
+
+        int number = 1;
+        foreach (View view in views)
+        {
+            foreach (Bezel bezel in view.Bezels)
             {
-                Bezel bezel = (list[count] as Bezel)!;
-                item = new ListViewItem(new []
+                ListViewItem item = new(new []
                 {
-                    (count + 1).ToString(),
+                    number.ToString(),
                     bezel.Element,
+                    view.Name,
                     bezel.Bounds.X,
                     bezel.Bounds.Y,
                     bezel.Bounds.Width,
                     bezel.Bounds.Height
                 });
-            }
 
-            if (item is null)
-            {
-                return;
-            }
+                bezelsListView.Items.Add(item);
 
-            listView.Items.Add(item);
+                number++;
+            }
         }
 
-        ColourListViewItems(ref listView);
+        ColourListViewItems(ref bezelsListView);
     }
 
     private static void ColourListViewItems(ref ListView listView)
@@ -117,6 +145,19 @@ internal static class FormExtensions
         foreach (ListViewItem item in listView.Items)
         {
             item.ForeColor = Color.White;
+        }
+    }
+
+    // TODO: Refactor usages of typeof(T):
+    public static void UpdateListView<T>(List<T> list, ref ListView listView)
+    {
+        if (typeof(T) == typeof(Element))
+        {
+            UpdateElementsListView((list as List<Element>)!, ref listView);
+        }
+        else if (typeof(T) == typeof(View))
+        {
+            UpdateViewsListView((list as List<View>)!, ref listView);
         }
     }
 

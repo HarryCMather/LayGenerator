@@ -1,13 +1,8 @@
-﻿using System.Xml.Serialization;
+﻿namespace LayGeneratorGUI.Models;
 
-namespace LayGeneratorGUI.Models;
-
-[XmlRoot("element")]
-internal class Element
+public class Element
 {
-    [XmlAttribute("name")]
     public string Name { get; set; }
 
-    [XmlAttribute("image")]
     public Image Image { get; set; }
 }

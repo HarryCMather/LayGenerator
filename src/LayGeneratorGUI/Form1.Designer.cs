@@ -102,6 +102,7 @@
             ViewMoveDownButton = new Button();
             ViewMoveUpButton = new Button();
             BezelDeleteButton = new Button();
+            label1 = new Label();
             SuspendLayout();
             // 
             // AddBezelButton
@@ -804,6 +805,7 @@
             // BezelDeleteButton
             // 
             BezelDeleteButton.BackColor = Color.FromArgb(40, 40, 40);
+            BezelDeleteButton.Enabled = false;
             BezelDeleteButton.FlatAppearance.BorderSize = 0;
             BezelDeleteButton.FlatStyle = FlatStyle.Flat;
             BezelDeleteButton.ForeColor = SystemColors.ButtonHighlight;
@@ -815,12 +817,23 @@
             BezelDeleteButton.UseVisualStyleBackColor = false;
             BezelDeleteButton.Click += BezelDeleteButton_Click;
             // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.ForeColor = SystemColors.ButtonHighlight;
+            label1.Location = new Point(1250, 9);
+            label1.Name = "label1";
+            label1.Size = new Size(115, 15);
+            label1.TabIndex = 70;
+            label1.Text = "© HarryCM01 #5796";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(26, 26, 26);
             ClientSize = new Size(1377, 608);
+            Controls.Add(label1);
             Controls.Add(BezelDeleteButton);
             Controls.Add(ViewDeleteButton);
             Controls.Add(ViewMoveDownButton);
@@ -962,5 +975,6 @@
         private ColumnHeader BezelYHeader;
         private ColumnHeader BezelWidthHeader;
         private ColumnHeader BezelHeightHeader;
+        private Label label1;
     }
 }
