@@ -17,6 +17,7 @@ jobs:
       with:
         fetch-depth: 0
 
+
     - name: Install .NET Core
       uses: actions/setup-dotnet@v3
       with:
