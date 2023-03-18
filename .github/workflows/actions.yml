@@ -30,13 +30,29 @@ jobs:
       run: echo ${{ steps.version.outputs.version-without-v }}
 
     - name: Publish Project
-      run: dotnet publish "./src/LayGeneratorGUI/LayGeneratorGUI.csproj" --configuration Release --output ./Output --runtime win-x64 --self-contained /p:Version=${{ steps.version.outputs.version-without-v }}
+      run: dotnet publish "./src/LayGeneratorGUI/LayGeneratorGUI.csproj" --configuration Release --output ./Output --runtime win-x64 --self-contained /p:Version=${{ steps.version.outputs.version-without-v }} /p:PublishSingleFile=true
 
-    - name: Publish Artifacts
-      uses: actions/upload-artifact@v3
+    # - name: Publish Artifacts
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: LayGenerator-${{ steps.version.outputs.version }}
+    #     path: ./Output
+
+    - uses: montudor/action-zip@v1
       with:
-        name: LayGenerator
-        path: ./Output
+        args: zip -qq -r LayGenerator-${{ steps.version.outputs.version }}.zip ./Output
 
-    
+    - name: Create a Release
+      uses: elgohr/Github-Release-Action@v4
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      with:
+        title: LayGenerator-${{ steps.version.outputs.version }}
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: LayGenerator-${{ steps.version.outputs.version }}.zip
+
     # - name: Discord new release alert
