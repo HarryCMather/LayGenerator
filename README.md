@@ -1,4 +1,5 @@
 # LayGenerator
+Allows lay files to be generated using a user interface, rather than manually coding them.
 
 # Fixes/Improvements:
 - UI fixes for Delete for Bezels
