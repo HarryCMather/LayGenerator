@@ -17,7 +17,7 @@ internal static class Program
             version = version[..^2];
         }
 
-        version = version == "1.0.0" ? " Development Build" : $@" V-{version}";
+        version = version == "1.0.0" ? " Development Build" : $@" V-{version}"; // Remove last two characters, as the Version that's being read is not adhering to the samver versioning standard.
 
         ApplicationConfiguration.Initialize();
         Application.Run(new Form1(version));
