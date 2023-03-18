@@ -8,8 +8,7 @@ on:
 jobs:
   build:
     name: Build and Deploy
-    runs-on: ubuntu-latest
-    # if: github.ref == 'refs/heads/master'
+    runs-on: windows-latest
 
     steps:
     - name: Checkout
@@ -38,5 +37,4 @@ jobs:
         name: LayGenerator
         path: ./Output
 
-    
     # - name: Discord new release alert
