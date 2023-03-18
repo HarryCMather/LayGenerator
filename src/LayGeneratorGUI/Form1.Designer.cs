@@ -103,6 +103,7 @@
             ViewMoveUpButton = new Button();
             BezelDeleteButton = new Button();
             label1 = new Label();
+            loadLayFileButton = new Button();
             SuspendLayout();
             // 
             // AddBezelButton
@@ -575,11 +576,11 @@
             GenerateLayFileButton.FlatAppearance.BorderSize = 0;
             GenerateLayFileButton.FlatStyle = FlatStyle.Flat;
             GenerateLayFileButton.ForeColor = SystemColors.ButtonHighlight;
-            GenerateLayFileButton.Location = new Point(13, 562);
+            GenerateLayFileButton.Location = new Point(12, 590);
             GenerateLayFileButton.Name = "GenerateLayFileButton";
             GenerateLayFileButton.Size = new Size(1247, 23);
             GenerateLayFileButton.TabIndex = 54;
-            GenerateLayFileButton.Text = "Generate Lay File";
+            GenerateLayFileButton.Text = "Save Lay File";
             GenerateLayFileButton.UseVisualStyleBackColor = false;
             GenerateLayFileButton.Click += GenerateLayFileButton_Click;
             // 
@@ -588,6 +589,7 @@
             ElementsListview.BackColor = Color.FromArgb(40, 40, 40);
             ElementsListview.BorderStyle = BorderStyle.None;
             ElementsListview.Columns.AddRange(new ColumnHeader[] { NumberHeader, NameHeader, ImageHeader });
+            ElementsListview.FullRowSelect = true;
             ElementsListview.HeaderStyle = ColumnHeaderStyle.Nonclickable;
             ElementsListview.Items.AddRange(new ListViewItem[] { listViewItem1 });
             ElementsListview.Location = new Point(655, 127);
@@ -618,6 +620,7 @@
             ViewsListview.BackColor = Color.FromArgb(40, 40, 40);
             ViewsListview.BorderStyle = BorderStyle.None;
             ViewsListview.Columns.AddRange(new ColumnHeader[] { ViewNumberHeader, ViewNameHeader, ViewCommentHeader, ViewIndexHeader, ViewXHeader, ViewYHeader, ViewWidthHeader, ViewHeightHeader });
+            ViewsListview.FullRowSelect = true;
             ViewsListview.Location = new Point(655, 256);
             ViewsListview.Name = "ViewsListview";
             ViewsListview.Size = new Size(605, 139);
@@ -634,7 +637,7 @@
             // ViewNameHeader
             // 
             ViewNameHeader.Text = "Name";
-            ViewNameHeader.Width = 100;
+            ViewNameHeader.Width = 98;
             // 
             // ViewCommentHeader
             // 
@@ -671,6 +674,7 @@
             BezelsListview.BackColor = Color.FromArgb(40, 40, 40);
             BezelsListview.BorderStyle = BorderStyle.None;
             BezelsListview.Columns.AddRange(new ColumnHeader[] { BezelNumberHeader, BezelElementName, BezelViewName, BezelXHeader, BezelYHeader, BezelWidthHeader, BezelHeightHeader });
+            BezelsListview.FullRowSelect = true;
             BezelsListview.Location = new Point(655, 448);
             BezelsListview.Name = "BezelsListview";
             BezelsListview.Size = new Size(605, 94);
@@ -692,7 +696,7 @@
             // BezelViewName
             // 
             BezelViewName.Text = "View Name";
-            BezelViewName.Width = 127;
+            BezelViewName.Width = 126;
             // 
             // BezelXHeader
             // 
@@ -827,12 +831,27 @@
             label1.TabIndex = 70;
             label1.Text = "© HarryCM01 #5796";
             // 
+            // loadLayFileButton
+            // 
+            loadLayFileButton.BackColor = Color.FromArgb(40, 40, 40);
+            loadLayFileButton.Enabled = false;
+            loadLayFileButton.FlatAppearance.BorderSize = 0;
+            loadLayFileButton.FlatStyle = FlatStyle.Flat;
+            loadLayFileButton.ForeColor = SystemColors.ButtonHighlight;
+            loadLayFileButton.Location = new Point(13, 561);
+            loadLayFileButton.Name = "loadLayFileButton";
+            loadLayFileButton.Size = new Size(1247, 23);
+            loadLayFileButton.TabIndex = 71;
+            loadLayFileButton.Text = "Load Existing Lay File";
+            loadLayFileButton.UseVisualStyleBackColor = false;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(26, 26, 26);
-            ClientSize = new Size(1377, 608);
+            ClientSize = new Size(1377, 632);
+            Controls.Add(loadLayFileButton);
             Controls.Add(label1);
             Controls.Add(BezelDeleteButton);
             Controls.Add(ViewDeleteButton);
@@ -976,5 +995,6 @@
         private ColumnHeader BezelWidthHeader;
         private ColumnHeader BezelHeightHeader;
         private Label label1;
+        private Button loadLayFileButton;
     }
 }

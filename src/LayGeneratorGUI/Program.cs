@@ -1,7 +1,5 @@
 using System.Reflection;
 
-[assembly: AssemblyVersion("1.0.1.*")]
-
 namespace LayGeneratorGUI;
 
 internal static class Program
@@ -13,6 +11,7 @@ internal static class Program
     private static void Main()
     {
         string version = Assembly.GetExecutingAssembly().GetName().Version?.ToString();
+        version ??= "Development";
         ApplicationConfiguration.Initialize();
         Application.Run(new Form1(version));
     }

@@ -22,8 +22,15 @@ jobs:
       with:
         dotnet-version: 6.0.x
 
+    - name: Tag Version
+      id: version
+      uses: battila7/get-version-action@v2
+
+    - name: Output Version
+      run: echo ${{ steps.version.outputs.version-without-v }}
+
     - name: Publish Project
-      run: dotnet publish "./src/LayGeneratorGUI/LayGeneratorGUI.csproj" --configuration Release --output ./Output --runtime win-x64 --self-contained
+      run: dotnet publish "./src/LayGeneratorGUI/LayGeneratorGUI.csproj" --configuration Release --output ./Output --runtime win-x64 --self-contained /p:Version=${{ steps.version.outputs.version-without-v }}
 
     - name: Publish Artifacts
       uses: actions/upload-artifact@v3
@@ -31,29 +38,5 @@ jobs:
         name: LayGenerator
         path: ./Output
 
-    - name: Configure Service Connection
-      run: |
-        mkdir -p ~/.ssh/
-        echo "$SSH_KEY" > ~/.ssh/server.key
-        chmod 600 ~/.ssh/server.key
-        cat >>~/.ssh/config <<END
-        Host server
-          HostName $SSH_HOST
-          User $SSH_USER
-          IdentityFile ~/.ssh/server.key
-          StrictHostKeyChecking no
-        END
-      env:
-        SSH_USER: ${{ secrets.STAGING_SSH_USER }}
-        SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
-        SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
-  
-    - name: Ensure Upload Completed
-      run: sleep 5
-
-    - name: Download New Files
-      run: ssh server 'dotnet /home/ubuntu/DownloadGithubArtifact/DownloadGithubArtifact.dll LayGenerator /home/ubuntu/LayGenerator'
-
-    # - name: Move files to downloads
     
     # - name: Discord new release alert
