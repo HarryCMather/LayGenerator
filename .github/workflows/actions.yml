@@ -8,8 +8,7 @@ on:
 jobs:
   build:
     name: Build and Release
-    runs-on: ubuntu-latest
-    # if: github.ref == 'refs/heads/master'
+    runs-on: windows-latest
 
     steps:
     - name: Checkout
@@ -28,12 +27,6 @@ jobs:
 
     - name: Publish Project
       run: dotnet publish "./src/LayGeneratorGUI/LayGeneratorGUI.csproj" --configuration Release --output ./LayGenerator --runtime win-x64 --self-contained /p:Version=${{ steps.version.outputs.version-without-v }} /p:PublishSingleFile=true
-
-    # - name: Publish Artifacts
-    #   uses: actions/upload-artifact@v3
-    #   with:
-    #     name: LayGenerator-${{ steps.version.outputs.version }}
-    #     path: ./Output
 
     - name: Zip Published Files
       uses: montudor/action-zip@v1

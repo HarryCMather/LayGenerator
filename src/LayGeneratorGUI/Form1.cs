@@ -20,7 +20,7 @@ public sealed partial class Form1 : Form
 
         if (!string.IsNullOrEmpty(version))
         {
-            Text += $@" V-{version}";
+            Text += version;
         }
     }
 
