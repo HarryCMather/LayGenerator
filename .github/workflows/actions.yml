@@ -26,12 +26,14 @@ jobs:
       uses: battila7/get-version-action@v2
 
     - name: Publish Project
-      run: dotnet publish "./src/LayGeneratorGUI/LayGeneratorGUI.csproj" --configuration Release --output ./LayGenerator --runtime win-x64 --self-contained /p:Version=${{ steps.version.outputs.version-without-v }} /p:PublishSingleFile=true
+      run: dotnet publish "./src/LayGeneratorGUI/LayGeneratorGUI.csproj" --configuration Release --output ./LayGenerator --runtime win-x64 /p:Version=${{ steps.version.outputs.version-without-v }} /p:PublishSingleFile=true
 
     - name: Zip Published Files
-      uses: montudor/action-zip@v1
+      uses: thedoctor0/zip-release@0.7.1
       with:
-        args: zip -qq -r LayGenerator-${{ steps.version.outputs.version }}.zip ./LayGenerator
+        type: zip
+        filename: LayGenerator-${{ steps.version.outputs.version }}.zip
+        path: ./LayGenerator
 
     - name: Create Release
       id: create-new-release
