@@ -8,3 +8,4 @@ If you do not have the .NET6 Desktop runtime installed, you can install this fro
 - UI fixes for Delete for Bezels
 - Ability to save and load templates, or use existing files as base (lay deserialization)
 - Documentation/video guide
+- Add the ability to add Backdrops and Overlays to views.
